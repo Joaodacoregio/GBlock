@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/01-Application/">
+    <Project Path="src/GBlock.App/GBlock.App.csproj" />
+  </Folder>
+  <Folder Name="/src/02-Domain/">
+    <Project Path="src/GBlock.Domain/GBlock.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/03-Service/">
+    <Project Path="src/GBlock.Service/GBlock.Service.csproj" />
+  </Folder>
+  <Folder Name="/src/04-Infrastructure/">
+    <Project Path="src/GBlock.Infrastructure/GBlock.Infrastructure.csproj" />
+  </Folder>
+</Solution>

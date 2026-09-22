@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>GBlock.App</RootNamespace>
+    <AssemblyName>GBlock</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <!-- NotifyIcon da bandeja vem do WinForms, evitando dependencia externa. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WPF e WinForms tem tipos homonimos (Application, Color, MessageBox...).
+         Os usings implicitos do WinForms saem; quem precisa usa o alias Forms/Drawing. -->
+    <Using Remove="System.Drawing" />
+    <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GBlock.Domain\GBlock.Domain.csproj" />
+    <ProjectReference Include="..\GBlock.Service\GBlock.Service.csproj" />
+    <ProjectReference Include="..\GBlock.Infrastructure\GBlock.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
