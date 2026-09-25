@@ -80,6 +80,17 @@ esse horário.
   <img src="docs/imagens/editor-configuracoes.png" width="480" alt="Configurações: trava de horário" />
 </p>
 
+## Download
+
+Baixe o **`GBlock-vX.Y.Z-win-x64.zip`** na página de
+[**Releases**](https://github.com/Joaodacoregio/GBlock/releases/latest), extraia e rode o `GBlock.exe`.
+
+- Não precisa instalar nada: o .NET já vai dentro do executável (self-contained, Windows 10/11 64 bits).
+- Na primeira execução o Windows SmartScreen pode avisar "Windows protegeu o computador", porque o
+  executável não é assinado digitalmente. Clique em **Mais informações** → **Executar assim mesmo**.
+- Dica: deixe o `GBlock.exe` numa pasta fixa (ex.: `C:\Program Files\GBlock` ou `Documentos\GBlock`)
+  antes de ligar "Iniciar com o Windows", já que o registro aponta para esse caminho.
+
 ## Como usar
 
 1. Abra o jogo uma vez para que ele apareça na lista de processos.
