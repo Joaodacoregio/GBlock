@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using GBlock.App.Base;
 using GBlock.App.ViewModels;
 
 namespace GBlock.App.Views;
@@ -11,6 +12,7 @@ public partial class JanelaPrincipal : Window
     public JanelaPrincipal(PrincipalViewModel viewModel)
     {
         InitializeComponent();
+        TemaJanela.AplicarEscuro(this);
 
         _viewModel = viewModel;
         _viewModel.AbrirEditor = AbrirEditor;

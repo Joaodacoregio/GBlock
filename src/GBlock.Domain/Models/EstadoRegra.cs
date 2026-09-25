@@ -11,7 +11,18 @@ public class EstadoRegra
     public TimeSpan Limite { get; init; }
     public bool EmExecucao { get; init; }
 
-    public TimeSpan Restante => Limite > Consumido ? Limite - Consumido : TimeSpan.Zero;
+    /// <summary>Quanto falta para a trava de horario; null quando a regra permite jogar depois do horario.</summary>
+    public TimeSpan? AteHorarioLimite { get; init; }
+
+    /// <summary>Saldo efetivo: o menor entre o tempo do dia e o tempo ate o horario limite.</summary>
+    public TimeSpan Restante
+    {
+        get
+        {
+            var saldo = Limite > Consumido ? Limite - Consumido : TimeSpan.Zero;
+            return AteHorarioLimite is { } ate && ate < saldo ? ate : saldo;
+        }
+    }
 
     public double PercentualUsado => Limite.TotalSeconds <= 0
         ? 100d

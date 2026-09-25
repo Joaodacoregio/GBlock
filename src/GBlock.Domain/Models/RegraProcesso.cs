@@ -21,6 +21,19 @@ public class RegraProcesso
     /// <summary>Minutos restantes em que o aviso de encerramento deve aparecer.</summary>
     public int MinutosAviso { get; set; } = 5;
 
+    /// <summary>Quando false, o processo so pode rodar ate <see cref="HorarioLimite"/> (trava de horario).</summary>
+    public bool PermitirAposHorario { get; set; } = true;
+
+    /// <summary>A partir deste horario (ate a meia-noite) o processo e fechado e nao pode ser aberto.</summary>
+    public TimeOnly HorarioLimite { get; set; } = new(22, 0);
+
+    public bool ForaDoHorario(TimeOnly agora)
+        => !PermitirAposHorario && agora >= HorarioLimite;
+
+    /// <summary>Tempo que falta para a trava de horario; null quando a trava esta desligada.</summary>
+    public TimeSpan? TempoAteHorarioLimite(TimeOnly agora)
+        => PermitirAposHorario ? null : (agora >= HorarioLimite ? TimeSpan.Zero : HorarioLimite - agora);
+
     public int LimiteMinutos(DayOfWeek dia)
         => LimitesPorDia.TryGetValue(dia, out var minutos) ? Math.Max(0, minutos) : 0;
 

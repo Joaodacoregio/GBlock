@@ -88,7 +88,8 @@ public class MonitorService : IMonitorService, IDisposable
 
     private void ExecutarVerificacao()
     {
-        var hoje = DateOnly.FromDateTime(DateTime.Today);
+        var agora = DateTime.Now;
+        var hoje = DateOnly.FromDateTime(agora);
         VirarDiaSeNecessario(hoje);
 
         var estados = new List<EstadoRegra>();
@@ -99,20 +100,20 @@ public class MonitorService : IMonitorService, IDisposable
             if (!regra.Ativa)
             {
                 // Regra pausada continua visivel na interface, mas nao consome nem bloqueia.
-                estados.Add(AvaliadorRegra.Avaliar(regra, hoje.DayOfWeek, _usoDoDia.Segundos(regra.Id), false));
+                estados.Add(AvaliadorRegra.Avaliar(regra, agora, _usoDoDia.Segundos(regra.Id), false));
                 continue;
             }
 
             var emExecucao = _processos.ContarInstancias(regra.NomeProcesso) > 0;
             var controle = Controle(regra.Id);
 
-            if (emExecucao && PodeContabilizar(regra, hoje))
+            if (emExecucao && PodeContabilizar(regra, agora))
             {
                 _usoDoDia.Acumular(regra.Id, (int)Intervalo.TotalSeconds);
                 houveMudanca = true;
             }
 
-            var estado = AvaliadorRegra.Avaliar(regra, hoje.DayOfWeek, _usoDoDia.Segundos(regra.Id), emExecucao);
+            var estado = AvaliadorRegra.Avaliar(regra, agora, _usoDoDia.Segundos(regra.Id), emExecucao);
             estados.Add(estado);
 
             Reagir(estado, controle);
@@ -128,10 +129,16 @@ public class MonitorService : IMonitorService, IDisposable
         }
     }
 
-    /// <summary>Nao consome saldo de quem ja estourou o limite — evita "divida" no dia seguinte.</summary>
-    private bool PodeContabilizar(RegraProcesso regra, DateOnly hoje)
+    /// <summary>
+    /// Nao consome saldo de quem ja estourou o limite (evita "divida" no dia seguinte)
+    /// nem de quem esta fora do horario — nesse caso o processo so fica aberto ate ser fechado.
+    /// </summary>
+    private bool PodeContabilizar(RegraProcesso regra, DateTime agora)
     {
-        var limite = TimeSpan.FromMinutes(regra.LimiteMinutos(hoje.DayOfWeek));
+        if (regra.ForaDoHorario(TimeOnly.FromDateTime(agora)))
+            return false;
+
+        var limite = TimeSpan.FromMinutes(regra.LimiteMinutos(agora.DayOfWeek));
         return limite > TimeSpan.Zero && TimeSpan.FromSeconds(_usoDoDia.Segundos(regra.Id)) < limite;
     }
 
@@ -151,6 +158,7 @@ public class MonitorService : IMonitorService, IDisposable
 
             case StatusRegra.Bloqueado:
             case StatusRegra.DiaBloqueado:
+            case StatusRegra.ForaDoHorario:
                 Bloquear(estado, controle);
                 break;
         }

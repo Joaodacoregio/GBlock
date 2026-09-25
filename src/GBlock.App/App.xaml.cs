@@ -1,6 +1,7 @@
 using System.Windows;
 using GBlock.App.ViewModels;
 using GBlock.App.Views;
+using GBlock.Domain.Enums;
 using GBlock.Domain.Interfaces;
 using GBlock.Domain.Models;
 using GBlock.Infrastructure.Providers;
@@ -101,6 +102,8 @@ public partial class App : Application
             "GBlock",
             tipo switch
             {
+                _ when estado.Status == StatusRegra.ForaDoHorario && tipo != TipoAviso.Aviso =>
+                    $"{estado.Regra.Nome}: passou do horario limite ({estado.Regra.HorarioLimite:HH:mm}).",
                 TipoAviso.Aviso => $"{estado.Regra.Nome}: restam {RegraItemViewModel.Formatar(estado.Restante)}.",
                 TipoAviso.Encerrado => $"{estado.Regra.Nome} foi encerrado — tempo do dia esgotado.",
                 _ => $"{estado.Regra.Nome} esta bloqueado hoje."
@@ -117,26 +120,12 @@ public partial class App : Application
     private static void NoDispatcher(Action acao)
         => Current?.Dispatcher.Invoke(acao);
 
-    /// <summary>Icone desenhado em tempo de execucao — dispensa recurso binario no repositorio.</summary>
+    /// <summary>O mesmo chinelo do executavel (Assets/gblock.ico), no tamanho pequeno da bandeja.</summary>
     private static Drawing.Icon IconeDaBandeja()
     {
-        using var bitmap = new Drawing.Bitmap(32, 32);
-        using (var g = Drawing.Graphics.FromImage(bitmap))
-        {
-            g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.Clear(Drawing.Color.Transparent);
-            g.FillEllipse(new Drawing.SolidBrush(Drawing.ColorTranslator.FromHtml("#2563EB")), 1, 1, 30, 30);
-
-            using var fonte = new Drawing.Font("Segoe UI", 15, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel);
-            using var formato = new Drawing.StringFormat
-            {
-                Alignment = Drawing.StringAlignment.Center,
-                LineAlignment = Drawing.StringAlignment.Center
-            };
-            g.DrawString("G", fonte, Drawing.Brushes.White, new Drawing.RectangleF(0, 0, 32, 32), formato);
-        }
-
-        return Drawing.Icon.FromHandle(bitmap.GetHicon());
+        var recurso = GetResourceStream(new Uri("pack://application:,,,/Assets/gblock.ico"));
+        using var fluxo = recurso!.Stream;
+        return new Drawing.Icon(fluxo, Forms.SystemInformation.SmallIconSize);
     }
 
     protected override void OnExit(ExitEventArgs e)

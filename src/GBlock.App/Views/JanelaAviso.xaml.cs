@@ -2,8 +2,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GBlock.App.ViewModels;
+using GBlock.Domain.Enums;
 using GBlock.Domain.Models;
-
 
 namespace GBlock.App.Views;
 
@@ -24,7 +24,7 @@ public partial class JanelaAviso : Window
 
         _segundosRestantes = tipo == TipoAviso.Aviso ? 15 : 10;
 
-        TituloTexto.Text = Titulo(tipo);
+        TituloTexto.Text = Titulo(estado, tipo);
         MensagemTexto.Text = Mensagem(estado, tipo);
         Marcador.Background = new SolidColorBrush(Cor(tipo));
 
@@ -64,15 +64,20 @@ public partial class JanelaAviso : Window
         Top = area.Bottom - Height - 16;
     }
 
-    private static string Titulo(TipoAviso tipo) => tipo switch
+    private static string Titulo(EstadoRegra estado, TipoAviso tipo) => tipo switch
     {
         TipoAviso.Aviso => "O tempo esta acabando",
+        _ when estado.Status == StatusRegra.ForaDoHorario => "Fora do horario",
         TipoAviso.Encerrado => "Tempo esgotado",
         _ => "Bloqueado por hoje"
     };
 
     private static string Mensagem(EstadoRegra estado, TipoAviso tipo) => tipo switch
     {
+        TipoAviso.Encerrado when estado.Status == StatusRegra.ForaDoHorario =>
+            $"{estado.Regra.Nome} foi fechado: o horario limite ({estado.Regra.HorarioLimite:HH:mm}) chegou.",
+        TipoAviso.Bloqueado when estado.Status == StatusRegra.ForaDoHorario =>
+            $"{estado.Regra.Nome} nao pode ser aberto depois das {estado.Regra.HorarioLimite:HH:mm}. Libera de novo amanha.",
         TipoAviso.Aviso =>
             $"{estado.Regra.Nome} vai ser encerrado em {RegraItemViewModel.Formatar(estado.Restante)}. Salve o que estiver fazendo.",
         TipoAviso.Encerrado =>
@@ -83,8 +88,8 @@ public partial class JanelaAviso : Window
 
     private static Color Cor(TipoAviso tipo) => tipo switch
     {
-        TipoAviso.Aviso => Color.FromRgb(0xD9, 0x77, 0x06),
-        _ => Color.FromRgb(0xDC, 0x26, 0x26)
+        TipoAviso.Aviso => Color.FromRgb(0xF5, 0x9E, 0x0B),
+        _ => Color.FromRgb(0xEF, 0x44, 0x44)
     };
 
     private void Fechar_Click(object sender, RoutedEventArgs e) => Close();

@@ -12,5 +12,8 @@ public enum StatusRegra
     Bloqueado,
 
     /// <summary>O dia atual nao esta configurado (limite zero).</summary>
-    DiaBloqueado
+    DiaBloqueado,
+
+    /// <summary>Passou do horario limite configurado para o dia.</summary>
+    ForaDoHorario
 }

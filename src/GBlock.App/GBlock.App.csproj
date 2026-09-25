@@ -12,6 +12,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Chinelo gerado por tools/GerarIcone.ps1. -->
+    <ApplicationIcon>Assets\gblock.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +21,11 @@
          Os usings implicitos do WinForms saem; quem precisa usa o alias Forms/Drawing. -->
     <Using Remove="System.Drawing" />
     <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tambem embutido como recurso WPF: icone das janelas e da bandeja. -->
+    <Resource Include="Assets\gblock.ico" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,6 +20,9 @@ public class RegraEditorViewModel : ObservableObject
     private string _nomeProcesso;
     private int _minutosAviso;
     private bool _ativa;
+    private bool _permitirAposHorario;
+    private int _horarioHoras;
+    private int _horarioMinutos;
     private ProcessoInfo? _processoSelecionado;
     private string _erro = string.Empty;
 
@@ -32,6 +35,9 @@ public class RegraEditorViewModel : ObservableObject
         _nomeProcesso = regra.NomeProcesso;
         _minutosAviso = regra.MinutosAviso;
         _ativa = regra.Ativa;
+        _permitirAposHorario = regra.PermitirAposHorario;
+        _horarioHoras = regra.HorarioLimite.Hour;
+        _horarioMinutos = regra.HorarioLimite.Minute;
 
         Dias = new ObservableCollection<DiaLimiteViewModel>(
             OrdemSemana.Select(d => new DiaLimiteViewModel(d, regra.LimiteMinutos(d))));
@@ -54,6 +60,36 @@ public class RegraEditorViewModel : ObservableObject
     public string NomeProcesso { get => _nomeProcesso; set => Definir(ref _nomeProcesso, value); }
     public bool Ativa { get => _ativa; set => Definir(ref _ativa, value); }
     public string Erro { get => _erro; private set => Definir(ref _erro, value); }
+
+    /// <summary>Desmarcado, aparece o horario limite: a partir dele o jogo e fechado e nao abre mais no dia.</summary>
+    public bool PermitirAposHorario
+    {
+        get => _permitirAposHorario;
+        set => Definir(ref _permitirAposHorario, value);
+    }
+
+    public int HorarioHoras
+    {
+        get => _horarioHoras;
+        set
+        {
+            if (Definir(ref _horarioHoras, Math.Clamp(value, 0, 23)))
+                OnPropertyChanged(nameof(ResumoHorario));
+        }
+    }
+
+    public int HorarioMinutos
+    {
+        get => _horarioMinutos;
+        set
+        {
+            if (Definir(ref _horarioMinutos, Math.Clamp(value, 0, 59)))
+                OnPropertyChanged(nameof(ResumoHorario));
+        }
+    }
+
+    public string ResumoHorario
+        => $"A partir das {HorarioHoras:00}:{HorarioMinutos:00} o jogo e fechado e nao abre mais ate a meia-noite.";
 
     public int MinutosAviso
     {
@@ -107,6 +143,8 @@ public class RegraEditorViewModel : ObservableObject
         _regra.NomeProcesso = RegraProcesso.Normalizar(NomeProcesso);
         _regra.MinutosAviso = MinutosAviso;
         _regra.Ativa = Ativa;
+        _regra.PermitirAposHorario = PermitirAposHorario;
+        _regra.HorarioLimite = new TimeOnly(HorarioHoras, HorarioMinutos);
 
         foreach (var dia in Dias)
             _regra.DefinirLimite(dia.Dia, dia.TotalMinutos);

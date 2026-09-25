@@ -11,7 +11,8 @@ public class RegraItemViewModel : ObservableObject
     private string _nome = string.Empty;
     private string _nomeProcesso = string.Empty;
     private string _statusTexto = string.Empty;
-    private string _corStatus = "#4B5563";
+    private string _corStatus = "#3F3F46";
+    private string _horarioTexto = string.Empty;
     private string _consumidoTexto = "00:00";
     private string _limiteTexto = "00:00";
     private string _restanteTexto = "00:00";
@@ -31,6 +32,17 @@ public class RegraItemViewModel : ObservableObject
     public string NomeProcesso { get => _nomeProcesso; private set => Definir(ref _nomeProcesso, value); }
     public string StatusTexto { get => _statusTexto; private set => Definir(ref _statusTexto, value); }
     public string CorStatus { get => _corStatus; private set => Definir(ref _corStatus, value); }
+    public string HorarioTexto
+    {
+        get => _horarioTexto;
+        private set
+        {
+            if (Definir(ref _horarioTexto, value))
+                OnPropertyChanged(nameof(TemHorarioLimite));
+        }
+    }
+
+    public bool TemHorarioLimite => HorarioTexto.Length > 0;
     public string ConsumidoTexto { get => _consumidoTexto; private set => Definir(ref _consumidoTexto, value); }
     public string LimiteTexto { get => _limiteTexto; private set => Definir(ref _limiteTexto, value); }
     public string RestanteTexto { get => _restanteTexto; private set => Definir(ref _restanteTexto, value); }
@@ -47,6 +59,9 @@ public class RegraItemViewModel : ObservableObject
         Consumido(estado);
         StatusTexto = Descrever(estado.Status, estado.EmExecucao);
         CorStatus = Cor(estado.Status);
+        HorarioTexto = estado.Regra.PermitirAposHorario
+            ? string.Empty
+            : $"trava as {estado.Regra.HorarioLimite:HH:mm}";
     }
 
     private void Consumido(EstadoRegra estado)
@@ -64,15 +79,15 @@ public class RegraItemViewModel : ObservableObject
     {
         StatusRegra.DiaBloqueado => "Bloqueado hoje",
         StatusRegra.Bloqueado => "Tempo esgotado",
+        StatusRegra.ForaDoHorario => "Fora do horario",
         StatusRegra.Aviso => emExecucao ? "Acabando" : "Pouco tempo",
         _ => emExecucao ? "Em execucao" : "Liberado"
     };
 
     private static string Cor(StatusRegra status) => status switch
     {
-        StatusRegra.DiaBloqueado => "#DC2626",
-        StatusRegra.Bloqueado => "#DC2626",
-        StatusRegra.Aviso => "#D97706",
-        _ => "#16A34A"
+        StatusRegra.DiaBloqueado or StatusRegra.Bloqueado or StatusRegra.ForaDoHorario => "#EF4444",
+        StatusRegra.Aviso => "#F59E0B",
+        _ => "#22C55E"
     };
 }
